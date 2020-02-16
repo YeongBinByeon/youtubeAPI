@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!-- npm install axios --save -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+  <title>Hello Vue</title>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="row">
+            <div class="col-6">
+                <ul v-if="youtubeOk">
+                    <!--Vue의 v-for 함수로 list 안의 내용들을 반복문으로 뿌려줄 수 있다.-->
+                    <!-- (todoItem, index) 괄호로 메서드에 파라메타를 넘길 수 있다. -->
+                    <li v-for="( item, index) in streamYoutubeList">
+                        <div>
+                            <a v-bind:href="item.id.makedUrl">
+                                <img v-bind:src="item.snippet.thumbnails.high.url"/></br>
+                            </a>
+                            USER_NAME : {{item.snippet.channelTitle}}<br/>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-4">
+                <ul v-if="youtubeOk">
+                    <!--Vue의 v-for 함수로 list 안의 내용들을 반복문으로 뿌려줄 수 있다.-->
+                    <!-- (todoItem, index) 괄호로 메서드에 파라메타를 넘길 수 있다. -->
+                    <li v-for="( item, index) in searchedChannelList">
+                        <div>
+                            
+                            <img v-bind:src="item.snippet.thumbnails.default.url" v-on:click="getYoutubeStream(item.snippet.channelTitle)"/></br>
+                            USER_NAME : {{item.snippet.channelTitle}}<br/>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-outline-primary" v-on:click="getChannelInfo('game')">Game</button></br>
+                <button type="button" class="btn btn-outline-primary" v-on:click="getChannelInfo('kids')">Kids</button></br>
+                <button type="button" class="btn btn-outline-primary" v-on:click="getChannelInfo('pet')">Pet</button></br>
+                <button type="button" class="btn btn-outline-primary" v-on:click="getChannelInfo('beauty')">Beauty</button></br>
+                <button type="button" class="btn btn-outline-primary" v-on:click="getChannelInfo('it_tech')">IT/Tech</button></br>
+            </div>
+        </div>
+    </div>
+    
+    
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      // Global axios defaults 
+      axios.defaults.headers.common['Client-ID'] = 'bexzg3k2txw12w9zvex2c50fqad###';
+      new Vue({
+        el: '#app',
+        data : {
+            inputText: '',
+            inputYoutubeText: '',
+            streamYoutubeList: [],
+            youtubeOk:true,
+            BASE_URL : 'https://youtube-rank.com/board/bbs/board.php?bo_table=youtube&sca=',
+            categoryDict : {'game':'%EA%B2%8C%EC%9E%84'
+                ,'kids':'%ED%82%A4%EC%A6%88%2F%EC%96%B4%EB%A6%B0%EC%9D%B4'
+                ,'pet':'%EC%95%A0%EC%99%84%2F%EB%B0%98%EB%A0%A4%EB%8F%99%EB%AC%BC'
+                ,'beauty':'%ED%8C%A8%EC%85%98%2F%EB%AF%B8%EC%9A%A9'
+                ,'it_tech':'IT%2F%EA%B8%B0%EC%88%A0%2F%EC%BB%B4%ED%93%A8%ED%84%B0'},
+            petChannelList:["크림히어로즈","SBS TV동물농장x애니멀봐","수리노을SuriNoel","슈앤트리 SHU AND TREE"],
+            kidsChannelList:["Boram Tube Vlog [보람튜브 브이로그]","Boram Tube ToysReview [보람튜브 토이리뷰]","Nao FunFun","핑크퐁 (인기 동요・동화)"],
+            beautyChannelList:["PONY Syndrome","RISABAE","ssin 씬님","heyitsfeiii"],
+            searchedChannelList:[],
+        },
+        methods:{
+                  showYoutube: function(){
+                      if (this.youtubeOk === false){
+                           this.youtubeOk=true;
+                      }else{
+                           this.youtubeOk=false;
+                      }
+                  },
+                  getYoutubeStream: function(channelName){
+                      this.streamYoutubeList = [];
+                      console.log(channelName);
+                      axios.get('https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyAZ54Gfv5gizxf1aYA6KCFiFZ9mUZCKqTo&regionCode=KR&type=video&maxResults=5&q=' + channelName )
+                      .then((response) =>{
+                          console.log(response.data);
+                          console.log(response.data.pageInfo.resultsPerPage);
+                          console.log(response.data.items);
+                          for(let i=0; i<response.data.pageInfo.resultsPerPage; i++){
+                              console.log(response.data.items[i].id.videoId);
+                              console.log(response.data.items[i].snippet.title);
+                              console.log(response.data.items[i].snippet.channelTitle);
+                              console.log(response.data.items[i].snippet.thumbnails.high.url);
+                              console.log(response.data.items[i].snippet.liveBroadcastContent);
+                              response.data.items[i].id.makedUrl = "https://www.youtube.com/watch?v=" + response.data.items[i].id.videoId;
+                              this.streamYoutubeList.push(response.data.items[i]);
+                          }
+                      });
+                  },
+                  getChannelInfo:function(categoryName){
+                      this.searchedChannelList = [];
+                      let tempList;
+                      if (categoryName === 'pet'){tempList = this.petChannelList;}
+                      else if(categoryName === 'kids'){tempList = this.kidsChannelList;}
+                      else if(categoryName === 'beauty'){tempList = this.beautyChannelList;}
+                      else{return 0;}
+                      console.log(tempList);
+                      for(let i=0; i<tempList.length; i++){
+                          axios.get('https://www.googleapis.com/youtube/v3/search?part=snippet&key=AIzaSyAZ54Gfv5gizxf1aYA6KCFiFZ9mUZCKqTo&regionCode=KR&type=channel&maxResults=1&q=' + tempList[i] )
+                            .then((response) =>{
+                          console.log(response.data);
+                          console.log(response.data.pageInfo.resultsPerPage);
+                          console.log(response.data.items);
+                          for(let i=0; i<response.data.pageInfo.resultsPerPage; i++){
+                              console.log(response.data.items[i].id.videoId);
+                              console.log(response.data.items[i].snippet.title);
+                              console.log(response.data.items[i].snippet.channelTitle);
+                              console.log(response.data.items[i].snippet.thumbnails.default.url);
+                              console.log(response.data.items[i].snippet.liveBroadcastContent);
+                              response.data.items[i].id.makedUrl = "https://www.youtube.com/watch?v=" + response.data.items[i].id.videoId;
+                              this.searchedChannelList.push(response.data.items[i]);
+                          }
+                        });
+                      }
+                  },
+                }
+      });
+    </script>
+
+  
+</body>
+</html>
